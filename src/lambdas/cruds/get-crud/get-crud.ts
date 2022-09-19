@@ -18,6 +18,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     let message: string;
     const responseBody = new ResponseBody;
     const data = {
+        event,
         id:event.pathParameters?.id,
         title: 'First crud'
     };
