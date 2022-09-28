@@ -11,16 +11,25 @@
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ResponseBody } from '../../../app/response-body';
+import { getFormatedDate, getFormatedDateTime, isValidUuid } from '../../../app/utils';
+
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    
+    const responseBody = new ResponseBody;
+    const id = event.pathParameters?.id || '';
+    if (!isValidUuid(id)) {
+        return responseBody.status400('Invalid ID format') as APIGatewayProxyResult;
+    }
     let response: APIGatewayProxyResult;
     let message: string;
-    const responseBody = new ResponseBody;
+
     const data = {
-        event,
-        id:event.pathParameters?.id,
-        title: 'First crud'
+        //event,
+        id: event.pathParameters?.id,
+        title: 'First crud',
+        validUuid: isValidUuid(id),
+        createdAt: getFormatedDate(new Date),
+        updatedAt: getFormatedDateTime(new Date)
     };
     try {
         response = responseBody.status200(data) as APIGatewayProxyResult;
