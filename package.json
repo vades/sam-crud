@@ -25,6 +25,8 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "aws-sdk": "^2.1217.0",
     "source-map-support": "^0.5.21",
     "uuid": "^9.0.0"

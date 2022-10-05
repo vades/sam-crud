@@ -8,8 +8,15 @@
  */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import DynamoDB = require('aws-sdk/clients/dynamodb');
+import { DataMapper } from "@aws/dynamodb-data-mapper";
+
 import { ResponseBody } from '../../../app/response-body';
 import { getFormatedDateTime, isValidUuid, hasBodyObject } from '../../../app/utils';
+import { CrudTable } from '../cruds.mapper';
+
+const client = new DynamoDB({ endpoint: 'http://host.docker.internal:8000' });
+const mapper = new DataMapper({ client });
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
@@ -24,22 +31,18 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         return responseBody.status400('Missing input body') as APIGatewayProxyResult;
     }
 
-
-    // TODO: move this to the model
-    let data = body;
-    data.id = id;
-    data.createdAt = '2022-09-28 17:12:06';
-    data.updatedAt = getFormatedDateTime(new Date);
-
-    let response: APIGatewayProxyResult;
-    let message: string;
+    const crud = new CrudTable();
+    crud.id = id;
 
     try {
-        response = responseBody.status200(data) as APIGatewayProxyResult;
-    } catch (err) {
-        message = responseBody.catch(err);
-        response = responseBody.status500(message) as APIGatewayProxyResult;
-    }
+        const fetched: any = await mapper.get({ item: crud });
+        fetched.title = body.title;
+        fetched.updatedAt = getFormatedDateTime(new Date);
 
-    return response;
+        const response = await mapper.update({ item: fetched });
+        return responseBody.status200(response, 'Updated');
+    } catch (err) {
+        const message = responseBody.catch(err);
+        return responseBody.status500(message);
+    }
 };

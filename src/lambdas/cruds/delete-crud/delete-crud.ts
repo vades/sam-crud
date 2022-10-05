@@ -7,30 +7,34 @@
  *
  */
 
+
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import DynamoDB = require('aws-sdk/clients/dynamodb');
+import { DataMapper } from "@aws/dynamodb-data-mapper";
+
 import { ResponseBody } from '../../../app/response-body';
-import { getFormatedDateTime, isValidUuid } from '../../../app/utils';
+import { getFormatedDateTime, isValidUuid, hasBodyObject } from '../../../app/utils';
+import { CrudTable } from '../cruds.mapper';
+
+const client = new DynamoDB({ endpoint: 'http://host.docker.internal:8000' });
+const mapper = new DataMapper({ client });
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const responseBody = new ResponseBody;
     const id = event.pathParameters?.id || '';
     if (!isValidUuid(id)) {
-        return responseBody.status400('Invalid ID format') as APIGatewayProxyResult;
+        return responseBody.status400('Invalid ID format');
     }
 
-    let response: APIGatewayProxyResult;
-    let message: string;
-    const data = {
-        id: id,
-        deletedAt: getFormatedDateTime(new Date)
-    };
+    const crud = new CrudTable();
+    crud.id = id;
 
     try {
-        response = responseBody.status200(data) as APIGatewayProxyResult;
+        const fetched: any = await mapper.get({ item: crud });
+        const response = await mapper.delete({ item: fetched });
+        return responseBody.status200(crud, 'Deleted');
     } catch (err) {
-        message = responseBody.catch(err);
-        response = responseBody.status500(message) as APIGatewayProxyResult;
+        const message = responseBody.catch(err);
+        return responseBody.status500(message);
     }
-
-    return response;
 };

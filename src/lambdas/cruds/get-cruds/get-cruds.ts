@@ -6,29 +6,28 @@
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
- import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
- import { ResponseBody } from '../../../app/response-body';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import DynamoDB = require('aws-sdk/clients/dynamodb');
+import { DataMapper } from "@aws/dynamodb-data-mapper";
+
+import { ResponseBody } from '../../../app/response-body';
+import { CrudTable } from '../cruds.mapper';
+
+const client = new DynamoDB({ endpoint: 'http://host.docker.internal:8000' });
+const mapper = new DataMapper({ client });
+
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    let response: APIGatewayProxyResult;
-    let message: string;
+    const crud = new CrudTable();
     const responseBody = new ResponseBody;
-    const data = [
-        {
-            id: 'aeebb8fd-dad0-47dd-8b7a-51b2afcb2073',
-            title: 'First crud'
-        },
-        {
-            id: 'beebb8fd-dad0-47dd-8b7a-51b2afcb2073',
-            title: 'Second crud'
-        },
-    ]
     try {
-        response = responseBody.status200(data) as APIGatewayProxyResult;
+        const response: CrudTable[] = [];
+        for await (const item of mapper.scan({ valueConstructor: CrudTable })) {
+            response.push(item);
+        }
+        return responseBody.status200(response);
     } catch (err) {
-        message = responseBody.catch(err);
-        response = responseBody.status500(message) as APIGatewayProxyResult;
+        const message = responseBody.catch(err);
+        return responseBody.status500(message);
     }
-
-    return response;
 };

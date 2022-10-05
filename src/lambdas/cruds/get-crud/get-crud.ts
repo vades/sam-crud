@@ -10,33 +10,37 @@
  */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { ResponseBody } from '../../../app/response-body';
-import { getFormatedDate, getFormatedDateTime, isValidUuid } from '../../../app/utils';
+import DynamoDB = require('aws-sdk/clients/dynamodb');
+import { DataMapper } from "@aws/dynamodb-data-mapper";
 
+import { ResponseBody } from '../../../app/response-body';
+import { isValidUuid } from '../../../app/utils';
+import { CrudTable } from '../cruds.mapper';
+
+const client = new DynamoDB({ endpoint: 'http://host.docker.internal:8000' });
+const mapper = new DataMapper({ client });
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const responseBody = new ResponseBody;
     const id = event.pathParameters?.id || '';
     if (!isValidUuid(id)) {
-        return responseBody.status400('Invalid ID format') as APIGatewayProxyResult;
+        return responseBody.status400('Invalid ID format');
     }
-    let response: APIGatewayProxyResult;
-    let message: string;
-
-    const data = {
-        //event,
-        id: event.pathParameters?.id,
-        title: 'First crud',
-        validUuid: isValidUuid(id),
-        createdAt: getFormatedDate(new Date),
-        updatedAt: getFormatedDateTime(new Date)
-    };
+    const crud = new CrudTable();
+    crud.id = id;
     try {
-        response = responseBody.status200(data) as APIGatewayProxyResult;
-    } catch (err) {
-        message = responseBody.catch(err);
-        response = responseBody.status500(message) as APIGatewayProxyResult;
-    }
+        const response = await mapper.get({ item: crud });
+        return responseBody.status200(response);
+    } catch (err: any) {
+        const message = responseBody.catch(err);
+        switch (err?.name) {
+            case 'ItemNotFoundException':
+                return responseBody.itemNotFound(id);
 
-    return response;
+            default:
+                return responseBody.status500(message);
+        }
+
+
+    }
 };

@@ -59,11 +59,11 @@ Resources:
           Properties:
             Path: /cruds
             Method: post
-  PutCrud:
+  UpdateCrud:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: src/lambdas/cruds/put-crud/
-      Handler: put-crud.lambdaHandler
+      CodeUri: src/lambdas/cruds/update-crud/
+      Handler: update-crud.lambdaHandler
       Runtime: nodejs16.x
       Events:
         HelloWorld:
@@ -83,6 +83,12 @@ Resources:
           Properties:
             Path: /cruds/{id}
             Method: delete
+  CrudTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM

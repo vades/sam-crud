@@ -26,6 +26,11 @@ export function isValidUuid(uuid: string): boolean {
     return regexExp.test(uuid);
 }
 
+/**
+ * Function to check if body object is not empty
+ * @param body 
+ * @returns 
+ */
 export function hasBodyObject(body: Object): boolean {
     if (Object.keys(body).length === 0 && body.constructor === Object) {
         return false;
