@@ -12,11 +12,11 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import DynamoDB = require('aws-sdk/clients/dynamodb');
 import { DataMapper } from "@aws/dynamodb-data-mapper";
 
-import { ResponseBody } from '../../../app/response-body';
-import { getFormatedDateTime, isValidUuid, hasBodyObject } from '../../../app/utils';
+
+import { isValidUuid, DdbConfig, ResponseBody } from '../../../app';
 import { CrudTable } from '../cruds.mapper';
 
-const client = new DynamoDB({ endpoint: 'http://host.docker.internal:8000' });
+const client = new DynamoDB(DdbConfig);
 const mapper = new DataMapper({ client });
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -33,8 +33,14 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const fetched: any = await mapper.get({ item: crud });
         const response = await mapper.delete({ item: fetched });
         return responseBody.status200(crud, 'Deleted');
-    } catch (err) {
+    } catch (err: any) {
         const message = responseBody.catch(err);
-        return responseBody.status500(message);
+        switch (err?.name) {
+            case 'ItemNotFoundException':
+                return responseBody.itemNotFound(id);
+
+            default:
+                return responseBody.status500(message);
+        }
     }
 };

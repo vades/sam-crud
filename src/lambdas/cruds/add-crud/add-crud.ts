@@ -12,12 +12,12 @@ import DynamoDB = require('aws-sdk/clients/dynamodb');
 import { DataMapper } from "@aws/dynamodb-data-mapper";
 
 
-import { ResponseBody } from '../../../app/response-body';
+import { ResponseBody, DdbConfig } from '../../../app';
 import { v4 as uuid } from 'uuid';
 import { getFormatedDateTime, hasBodyObject } from '../../../app/utils';
 import { CrudTable } from '../cruds.mapper';
 
-const client = new DynamoDB({ endpoint: 'http://host.docker.internal:8000' });
+const client = new DynamoDB(DdbConfig);
 const mapper = new DataMapper({ client });
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {

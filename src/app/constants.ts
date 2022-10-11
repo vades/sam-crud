@@ -1,0 +1,1 @@
+export const DdbConfig = process.env.AWS_SAM_LOCAL ? { endpoint: 'http://host.docker.internal:8000' } : undefined;
