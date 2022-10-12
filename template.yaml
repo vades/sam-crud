@@ -12,74 +12,101 @@ Globals:
 
 Resources:
   IndexFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/lambdas/
       Handler: index.lambdaHandler
       Runtime: nodejs16.x
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /
             Method: get
+  GetDev:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambdas/dev
+      Handler: get-items.lambdaHandler
+      Runtime: nodejs16.x
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /dev
+            Method: get
+      Environment:
+        Variables:
+          API_KEY:
+  AddDev:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambdas/dev
+      Handler: add-item.lambdaHandler
+      Runtime: nodejs16.x
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /dev
+            Method: post
   GetCruds:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/lambdas/cruds/get-cruds/
       Handler: get-cruds.lambdaHandler
       Runtime: nodejs16.x
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /cruds
             Method: get
   GetCrud:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/lambdas/cruds/get-crud/
       Handler: get-crud.lambdaHandler
       Runtime: nodejs16.x
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /cruds/{id}
             Method: get
   AddCrud:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/lambdas/cruds/add-crud/
       Handler: add-crud.lambdaHandler
       Runtime: nodejs16.x
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /cruds
             Method: post
   UpdateCrud:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/lambdas/cruds/update-crud/
       Handler: update-crud.lambdaHandler
       Runtime: nodejs16.x
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /cruds/{id}
             Method: put
   DeleteCrud:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/lambdas/cruds/delete-crud/
       Handler: delete-crud.lambdaHandler
       Runtime: nodejs16.x
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /cruds/{id}
             Method: delete
